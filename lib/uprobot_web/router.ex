@@ -17,6 +17,7 @@ defmodule UprobotWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    resources "sites", SiteController
   end
 
   # Other scopes may use custom stacks.

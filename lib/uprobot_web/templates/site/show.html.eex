@@ -1,0 +1,28 @@
+<h1>Show Site</h1>
+
+<ul>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @site.name %>
+  </li>
+
+  <li>
+    <strong>Url:</strong>
+    <%= @site.url %>
+  </li>
+
+  <li>
+    <strong>Is active:</strong>
+    <%= @site.is_active %>
+  </li>
+
+  <li>
+    <strong>Verified at:</strong>
+    <%= @site.verified_at %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.site_path(@conn, :edit, @site) %></span>
+<span><%= link "Back", to: Routes.site_path(@conn, :index) %></span>
