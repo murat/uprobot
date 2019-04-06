@@ -11,9 +11,10 @@ defmodule Uprobot.Application do
       # Start the Ecto repository
       Uprobot.Repo,
       # Start the endpoint when the application starts
-      UprobotWeb.Endpoint
+      UprobotWeb.Endpoint,
       # Starts a worker by calling: Uprobot.Worker.start_link(arg)
       # {Uprobot.Worker, arg},
+      Uprobot.Workers.SiteWorker
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

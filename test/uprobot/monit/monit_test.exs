@@ -67,4 +67,67 @@ defmodule Uprobot.MonitTest do
       assert %Ecto.Changeset{} = Monit.change_site(site)
     end
   end
+
+  describe "statuses" do
+    alias Uprobot.Monit.Status
+
+    @valid_attrs %{body: "some body", status_code: 42, status_text: "some status_text"}
+    @update_attrs %{body: "some updated body", status_code: 43, status_text: "some updated status_text"}
+    @invalid_attrs %{body: nil, status_code: nil, status_text: nil}
+
+    def status_fixture(attrs \\ %{}) do
+      {:ok, status} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Monit.create_status()
+
+      status
+    end
+
+    test "list_statuses/0 returns all statuses" do
+      status = status_fixture()
+      assert Monit.list_statuses() == [status]
+    end
+
+    test "get_status!/1 returns the status with given id" do
+      status = status_fixture()
+      assert Monit.get_status!(status.id) == status
+    end
+
+    test "create_status/1 with valid data creates a status" do
+      assert {:ok, %Status{} = status} = Monit.create_status(@valid_attrs)
+      assert status.body == "some body"
+      assert status.status_code == 42
+      assert status.status_text == "some status_text"
+    end
+
+    test "create_status/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Monit.create_status(@invalid_attrs)
+    end
+
+    test "update_status/2 with valid data updates the status" do
+      status = status_fixture()
+      assert {:ok, %Status{} = status} = Monit.update_status(status, @update_attrs)
+      assert status.body == "some updated body"
+      assert status.status_code == 43
+      assert status.status_text == "some updated status_text"
+    end
+
+    test "update_status/2 with invalid data returns error changeset" do
+      status = status_fixture()
+      assert {:error, %Ecto.Changeset{}} = Monit.update_status(status, @invalid_attrs)
+      assert status == Monit.get_status!(status.id)
+    end
+
+    test "delete_status/1 deletes the status" do
+      status = status_fixture()
+      assert {:ok, %Status{}} = Monit.delete_status(status)
+      assert_raise Ecto.NoResultsError, fn -> Monit.get_status!(status.id) end
+    end
+
+    test "change_status/1 returns a status changeset" do
+      status = status_fixture()
+      assert %Ecto.Changeset{} = Monit.change_status(status)
+    end
+  end
 end
