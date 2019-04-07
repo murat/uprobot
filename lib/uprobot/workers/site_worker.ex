@@ -91,7 +91,7 @@ defmodule Uprobot.Workers.SiteWorker do
 
   defp monit(site) do
     case HTTPoison.get(site.url) do
-      {body, _headers, status} ->
+      {:ok, %HTTPoison.Response{status_code: status}} ->
         status_code =
           if 100 < status && status < 599 do
             status
@@ -104,16 +104,20 @@ defmodule Uprobot.Workers.SiteWorker do
         Repo.insert!(%Status{
           site: site,
           status_code: status_code,
-          status_text: status_text,
-          body: if(status != 200, do: body, else: "")
+          status_text: status_text
         })
+
+        treshold = NaiveDateTime.add(NaiveDateTime.utc_now(), -1_800)
+
+        Repo.delete_all(
+          from(s in Status, where: s.site_id == ^site.id and s.inserted_at < ^treshold)
+        )
 
       {:error, error} ->
         Repo.insert!(%Status{
           site: site,
           status_code: 520,
-          status_text: "Unknown",
-          body: ""
+          status_text: "Unknown"
         })
 
         Logger.error(error.reason)
