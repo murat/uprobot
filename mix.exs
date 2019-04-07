@@ -20,7 +20,7 @@ defmodule Uprobot.MixProject do
   def application do
     [
       mod: {Uprobot.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :httpoison]
     ]
   end
 
@@ -43,7 +43,7 @@ defmodule Uprobot.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:hackney, "~> 1.15"}
+      {:httpoison, "~> 1.4"}
     ]
   end
 

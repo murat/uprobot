@@ -3,50 +3,120 @@ defmodule Uprobot.Workers.SiteWorker do
 
   use GenServer
 
+  require Logger
   import Ecto.Query, only: [from: 2]
 
   alias Uprobot.Repo
   alias Uprobot.Monit.{Site, Status}
 
-  def start_link() do
-    GenServer.start_link(__MODULE__, nil)
+  @statuses %{
+    "100" => "Continue",
+    "101" => "Switching Protocols",
+    "102" => "Processing",
+    "200" => "OK",
+    "201" => "Created",
+    "202" => "Accepted",
+    "203" => "Non-Authoritative Information",
+    "204" => "No Content",
+    "205" => "Reset Content",
+    "206" => "Partial Content",
+    "300" => "Multiple Choices",
+    "301" => "Moved Permanently",
+    "302" => "Found",
+    "303" => "See Other",
+    "304" => "Not Modified",
+    "305" => "Use Proxy",
+    "306" => "Unused",
+    "307" => "Temporary Redirect",
+    "308" => "Permanent Redirect",
+    "400" => "Bad Request",
+    "401" => "Unauthorized",
+    "402" => "Payment Required",
+    "403" => "Forbidden",
+    "404" => "Not Found",
+    "405" => "Method Not Allowed",
+    "406" => "Not Acceptable",
+    "407" => "Proxy Authentication Required",
+    "408" => "Request Timeout",
+    "409" => "Conflict",
+    "410" => "Gone",
+    "411" => "Length Required",
+    "412" => "Precondition Failed",
+    "413" => "Request Entity Too Large",
+    "414" => "Request-URI Too Long",
+    "415" => "Unsupported Media Type",
+    "416" => "Requested Range Not Satisfiable",
+    "417" => "Expectation Failed",
+    "418" => "I\'m a teapot",
+    "421" => "Misdirected Request",
+    "422" => "Unprocessable Entity",
+    "428" => "Precondition Required",
+    "429" => "Too Many Requests",
+    "431" => "Request Header Fields Too Large",
+    "451" => "Unavailable For Legal Reasons",
+    "500" => "Internal Server Error",
+    "501" => "Not Implemented",
+    "502" => "Bad Gateway",
+    "503" => "Service Unavailable",
+    "504" => "Gateway Timeout",
+    "505" => "HTTP Version Not Supported",
+    "511" => "Network Authentication Required",
+    "520" => "Web server is returning an unknown error",
+    "522" => "Connection timed out",
+    "524" => "A timeout occurred"
+  }
+
+  @spec start_link(any()) :: :ignore | {:error, any()} | {:ok, pid()}
+  def start_link(_), do: GenServer.start_link(__MODULE__, [])
+
+  def init(state) do
+    schedule()
+    {:ok, state}
   end
 
-  def init(_) do
-    schedule_work()
-    {:ok, nil}
-  end
+  def schedule, do: Process.send_after(self(), :perform, 5_000)
 
   def handle_info(:perform, state) do
     perform()
-    schedule_next_job()
     {:noreply, state}
-  end
-
-  defp schedule_work() do
-    # In 5 seconds
-    Process.send_after(self(), :perform, 5_000)
-  end
-
-  defp schedule_next_job() do
-    # In 60 seconds
-    Process.send_after(self(), :perform, 60_000)
   end
 
   defp perform do
     Repo.all(from s in Site, where: is_nil(s.verified_at) == false)
     |> Enum.map(&Task.async(fn -> monit(&1) end))
     |> Enum.map(&Task.await/1)
+
+    schedule()
   end
 
   defp monit(site) do
-    case :hackney.get(site.url, [], "", follow_redirect: true) do
-      {:ok, 200, _headers, _client_ref} ->
-        Repo.insert!(%Status{site_id: site.id, status: 200, body: ""})
+    case HTTPoison.get(site.url) do
+      {body, _headers, status} ->
+        status_code =
+          if 100 < status && status < 599 do
+            status
+          else
+            String.to_integer(status)
+          end
 
-      {:error, status, _headers, client_ref} ->
-        {:ok, response} = :hackney.body(client_ref)
-        Repo.insert!(%Status{site_id: site.id, status: status, body: response})
+        status_text = Map.get(@statuses, Integer.to_string(status_code), "Unknown")
+
+        Repo.insert!(%Status{
+          site: site,
+          status_code: status_code,
+          status_text: status_text,
+          body: if(status != 200, do: body, else: "")
+        })
+
+      {:error, error} ->
+        Repo.insert!(%Status{
+          site: site,
+          status_code: 520,
+          status_text: "Unknown",
+          body: ""
+        })
+
+        Logger.error(error.reason)
     end
   end
 end

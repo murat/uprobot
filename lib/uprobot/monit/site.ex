@@ -7,6 +7,7 @@ defmodule Uprobot.Monit.Site do
     field :name, :string
     field :url, :string
     field :verified_at, :naive_datetime
+    has_many :statuses, Uprobot.Monit.Status
 
     timestamps()
   end
