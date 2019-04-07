@@ -18,6 +18,7 @@ defmodule UprobotWeb.Router do
 
     get "/", PageController, :index
     resources "/sites", SiteController
+    resources "/dashboard", DashboardController, only: [:index, :show]
   end
 
   # Other scopes may use custom stacks.

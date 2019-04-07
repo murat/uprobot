@@ -1,4 +1,5 @@
 defmodule UprobotWeb.SiteController do
+  @moduledoc false
   use UprobotWeb, :controller
 
   alias Uprobot.Monit

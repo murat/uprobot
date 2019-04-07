@@ -5,23 +5,48 @@
     </div>
   <% end %>
 
-  <%= label f, :name %>
-  <%= text_input f, :name %>
-  <%= error_tag f, :name %>
+  <div class="field">
+    <label class="label">
+      <%= label f, :name %>
+    </label>
+    <div class="control">
+      <%= text_input f, :name, class: "input" %>
+      <%= error_tag f, :name %>
+    </div>
+  </div>
 
-  <%= label f, :url %>
-  <%= text_input f, :url %>
-  <%= error_tag f, :url %>
+  <div class="field">
+    <label class="label">
+      <%= label f, :url %>
+    </label>
+    <div class="control">
+      <%= text_input f, :url, class: "input" %>
+      <%= error_tag f, :url %>
+    </div>
+  </div>
 
-  <%= label f, :is_active %>
-  <%= checkbox f, :is_active %>
-  <%= error_tag f, :is_active %>
+  <div class="field">
+    <label class="label">
+      <%= label f, :is_active %>
+    </label>
+    <div class="control">
+      <%= checkbox f, :is_active %>
+      <%= error_tag f, :is_active %>
+    </div>
+  </div>
 
-  <%= label f, :verified_at %>
-  <%= datetime_select f, :verified_at %>
-  <%= error_tag f, :verified_at %>
+  <div class="field">
+    <label class="label">
+      <%= label f, :verified_at %>
+    </label>
+    <div class="control">
+      <%= datetime_select f, :verified_at %>
+      <%= error_tag f, :verified_at %>
+    </div>
+  </div>
 
   <div>
-    <%= submit "Save" %>
+    <%= submit "Save", class: "button is-primary" %>
+    <%= link "Back", to: Routes.site_path(@conn, :index), class: "button is-dark" %>
   </div>
 <% end %>

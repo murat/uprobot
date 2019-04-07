@@ -1,10 +1,9 @@
-<h1>Listing Sites</h1>
+<h1 class="is-size-3">Listing Sites</h1>
 
-<table>
+<table class="table is-fullwidth is-striped">
   <thead>
     <tr>
       <th>Name</th>
-      <th>Url</th>
       <th>Is active</th>
       <th>Verified at</th>
 
@@ -12,21 +11,49 @@
     </tr>
   </thead>
   <tbody>
-<%= for site <- @sites do %>
-    <tr>
-      <td><%= site.name %></td>
-      <td><%= site.url %></td>
-      <td><%= site.is_active %></td>
-      <td><%= site.verified_at %></td>
+    <%= for site <- @sites do %>
+      <tr>
+        <td>
+          <a href='<%= Routes.dashboard_path(@conn, :show, site) %>'>
+            <%= site.name %>
+          </a>
 
-      <td>
-        <%= link "Show", to: Routes.site_path(@conn, :show, site) %>
-        <%= link "Edit", to: Routes.site_path(@conn, :edit, site) %>
-        <%= link "Delete", to: Routes.site_path(@conn, :delete, site), method: :delete, data: [confirm: "Are you sure?"] %>
-      </td>
-    </tr>
-<% end %>
+          <a href='<%= site.url %>' target="_blank">
+            <small>
+              - <%= site.url %>
+            </small>
+          </a>
+        </td>
+        <td>
+          <%= if site.is_active do %>
+            <span class="icon has-text-success">
+              <i class="fas fa-check-square"></i>
+            </span>
+          <%= else %>
+            <span class="icon has-text-danger">
+              <i class="fas fa-ban"></i>
+            </span>
+          <% end %>
+        </td>
+        <td><%= site.verified_at %></td>
+
+        <td>
+          <div class="is-pulled-right">
+            <%= link to: Routes.site_path(@conn, :edit, site), class: "button is-small" do %>
+              <span class="icon is-small">
+                <i class="fas fa-pen"></i>
+              </span>
+            <% end %>
+            <%= link to: Routes.site_path(@conn, :delete, site), method: :delete, data: [confirm: "Are you sure?"], class: "button is-small is-danger" do %>
+              <span class="icon is-small">
+                <i class="fas fa-trash"></i>
+              </span>
+            <% end %>
+          </div>
+        </td>
+      </tr>
+    <% end %>
   </tbody>
 </table>
 
-<span><%= link "New Site", to: Routes.site_path(@conn, :new) %></span>
+<span><%= link "New Site", to: Routes.site_path(@conn, :new), class: "button is-primary" %></span>

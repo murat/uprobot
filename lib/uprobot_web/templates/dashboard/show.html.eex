@@ -1,0 +1,186 @@
+<div class="column">
+  <h4 class="is-centered is-size-3" style="margin-bottom: 2rem; text-align: center;"><%= @site.name %></h4>
+  <canvas id="chart-<%= @site.id %>"></canvas>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+
+<script>
+'use strict';
+
+window.chartColors = {
+  red: 'rgb(255, 99, 132)',
+  orange: 'rgb(255, 159, 64)',
+  yellow: 'rgb(255, 205, 86)',
+  green: 'rgb(75, 192, 192)',
+  blue: 'rgb(54, 162, 235)',
+  purple: 'rgb(153, 102, 255)',
+  grey: 'rgb(201, 203, 207)'
+};
+
+(function (global) {
+  const MONTHS = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ];
+
+  const COLORS = [
+    '#4dc9f6',
+    '#f67019',
+    '#f53794',
+    '#537bc4',
+    '#acc236',
+    '#166a8f',
+    '#00a950',
+    '#58595b',
+    '#8549ba'
+  ];
+
+  let Samples = global.Samples || (global.Samples = {});
+  let Color = global.Color;
+
+  Samples.utils = {
+    // Adapted from http://indiegamr.com/generate-repeatable-random-numbers-in-js/
+    srand: function (seed) {
+      this._seed = seed;
+    },
+
+    rand: function (min, max) {
+      let seed = this._seed;
+      min = min === undefined ? 0 : min;
+      max = max === undefined ? 1 : max;
+      this._seed = (seed * 9301 + 49297) % 233280;
+      return min + (this._seed / 233280) * (max - min);
+    },
+
+    numbers: function (config) {
+      let cfg = config || {};
+      let min = cfg.min || 0;
+      let max = cfg.max || 1;
+      let from = cfg.from || [];
+      let count = cfg.count || 8;
+      let decimals = cfg.decimals || 8;
+      let continuity = cfg.continuity || 1;
+      let dfactor = Math.pow(10, decimals) || 0;
+      let data = [];
+      let i, value;
+
+      for (i = 0; i < count; ++i) {
+        value = (from[i] || 0) + this.rand(min, max);
+        if (this.rand() <= continuity) {
+          data.push(Math.round(dfactor * value) / dfactor);
+        } else {
+          data.push(null);
+        }
+      }
+
+      return data;
+    },
+
+    labels: function (config) {
+      let cfg = config || {};
+      let min = cfg.min || 0;
+      let max = cfg.max || 100;
+      let count = cfg.count || 8;
+      let step = (max - min) / count;
+      let decimals = cfg.decimals || 8;
+      let dfactor = Math.pow(10, decimals) || 0;
+      let prefix = cfg.prefix || '';
+      let values = [];
+      let i;
+
+      for (i = min; i < max; i += step) {
+        values.push(prefix + Math.round(dfactor * i) / dfactor);
+      }
+
+      return values;
+    },
+
+    months: function (config) {
+      let cfg = config || {};
+      let count = cfg.count || 12;
+      let section = cfg.section;
+      let values = [];
+      let i, value;
+
+      for (i = 0; i < count; ++i) {
+        value = MONTHS[Math.ceil(i) % 12];
+        values.push(value.substring(0, section));
+      }
+
+      return values;
+    },
+
+    color: function (index) {
+      return COLORS[index % COLORS.length];
+    },
+
+    transparentize: function (color, opacity) {
+      let alpha = opacity === undefined ? 0.5 : 1 - opacity;
+      return Color(color).alpha(alpha).rgbString();
+    }
+  };
+
+  // INITIALIZATION
+  Samples.utils.srand(Date.now());
+}(this));
+
+let DATA_COUNT = 16;
+
+let utils = Samples.utils;
+
+utils.srand(110);
+
+function colorize(opaque, ctx) {
+  let v = ctx.dataset.data[ctx.dataIndex];
+  let c = v < -50 ? '#D60000'
+    : v < 0 ? '#F46300'
+      : v < 50 ? '#0358B6'
+        : '#44DE28';
+
+  return opaque ? c : utils.transparentize(c, 1 - Math.abs(v / 150));
+}
+
+function generateData() {
+  return utils.numbers({
+    count: DATA_COUNT,
+    min: -100,
+    max: 100
+  });
+}
+
+let data = {
+  labels: utils.months({ count: DATA_COUNT }),
+  datasets: [{
+    data: generateData()
+  }]
+};
+
+let options = {
+  legend: false,
+  tooltips: false,
+  elements: {
+    rectangle: {
+      backgroundColor: colorize.bind(null, false),
+      borderColor: colorize.bind(null, true),
+      borderWidth: 2
+    }
+  }
+};
+
+new Chart('chart-<%= @site.id %>', {
+  type: 'bar',
+  data: data,
+  options: options
+});
+</script>
