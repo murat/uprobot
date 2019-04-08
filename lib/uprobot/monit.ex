@@ -6,7 +6,7 @@ defmodule Uprobot.Monit do
   import Ecto.Query, warn: false
   alias Uprobot.Repo
 
-  alias Uprobot.Monit.Site
+  alias Uprobot.Monit.{Site, Status}
 
   @doc """
   Returns the list of sites.
@@ -36,6 +36,27 @@ defmodule Uprobot.Monit do
 
   """
   def get_site!(id), do: Repo.get!(Site, id)
+
+  def get_site_with_statuses!(id) do
+    stats_query =
+      from(
+        stat in Status,
+        where: stat.site_id == ^id,
+        select: [
+          fragment(
+            "date_trunc('H', inserted_at) + (round(extract('minute' from inserted_at) / 10) * 10) \* '1 minute'::interval as period"
+          ),
+          count(stat.id)
+        ],
+        group_by: fragment("period"),
+        order_by: fragment("period")
+      )
+
+    {
+      Repo.get!(Site, id),
+      Repo.all(stats_query)
+    }
+  end
 
   @doc """
   Creates a site.

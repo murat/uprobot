@@ -10,7 +10,8 @@ defmodule UprobotWeb.DashboardController do
   end
 
   def show(conn, %{"id" => id}) do
-    site = Monit.get_site!(id)
-    render(conn, "show.html", site: site)
+    {site, stats} = Monit.get_site_with_statuses!(id)
+    # raise stats
+    render(conn, "show.html", site: site, stats: stats)
   end
 end

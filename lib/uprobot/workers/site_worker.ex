@@ -107,7 +107,7 @@ defmodule Uprobot.Workers.SiteWorker do
           status_text: status_text
         })
 
-        treshold = NaiveDateTime.add(NaiveDateTime.utc_now(), -1_800)
+        treshold = NaiveDateTime.add(NaiveDateTime.utc_now(), -172_000)
 
         Repo.delete_all(
           from(s in Status, where: s.site_id == ^site.id and s.inserted_at < ^treshold)

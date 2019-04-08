@@ -4,7 +4,7 @@
       <h4 class="is-centered is-size-3" style="margin-bottom: 2rem; text-align: center;"><%= site.name %></h4>
       <canvas id="chart-<%= site.id %>" style="cursor: pointer" onclick='window.location.href = "<%= Routes.dashboard_path(@conn, :show, site) %>"'></canvas>
     </div>
-  <%= end %>
+  <% end %>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
@@ -187,5 +187,5 @@ let options = {
     data: data,
     options: options
   });
-<%= end %>
+<% end %>
 </script>
