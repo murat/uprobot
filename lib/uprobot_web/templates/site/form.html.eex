@@ -15,33 +15,56 @@
     </div>
   </div>
 
-  <div class="field">
-    <label class="label">
-      <%= label f, :url %>
-    </label>
-    <div class="control">
-      <%= text_input f, :url, class: "input" %>
-      <%= error_tag f, :url %>
+  <div class="columns">
+    <div class="column is-2">
+      <div class="field">
+        <label class="label">
+          <%= label f, :method %>
+        </label>
+        <div class="control">
+          <div class="select" style="width: 100%">
+            <%= select f, :method, ["get", "options", "head"], style: "width: 100%" %>
+          </div>
+          <%= error_tag f, :method %>
+        </div>
+      </div>
+    </div>
+
+    <div class="column is-10">
+      <div class="field">
+        <label class="label">
+          <%= label f, :url %>
+        </label>
+        <div class="control">
+          <%= text_input f, :url, class: "input" %>
+          <%= error_tag f, :url %>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="field">
     <label class="label">
-      <%= label f, :is_active %>
+      <%= label f, :interval %>
     </label>
     <div class="control">
-      <%= checkbox f, :is_active %>
-      <%= error_tag f, :is_active %>
+      <%= number_input f, :interval, class: "input", value: 100 %>
+      <%= error_tag f, :interval %>
     </div>
   </div>
 
-  <div class="field">
-    <label class="label">
-      <%= label f, :verified_at %>
-    </label>
-    <div class="control">
-      <%= datetime_select f, :verified_at %>
-      <%= error_tag f, :verified_at %>
+  <div class="columns">
+    <div class="column is-2">
+      <div class="field">
+        <%= radio_button f, :is_active, true, class: "is-checkradio" %>
+        <label for="site_is_active_true">Active</label>
+      </div>
+    </div>
+    <div class="column is-2">
+      <div class="field">
+        <%= radio_button f, :is_active, false, class: "is-checkradio" %>
+        <label for="site_is_active_false">Passive</label>
+      </div>
     </div>
   </div>
 

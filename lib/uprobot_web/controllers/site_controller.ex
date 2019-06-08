@@ -28,7 +28,7 @@ defmodule UprobotWeb.SiteController do
   end
 
   def show(conn, %{"id" => id}) do
-    site = Monit.get_site!(id)
+    site = Monit.get_site!(id, 300)
     render(conn, "show.html", site: site)
   end
 

@@ -1,28 +1,95 @@
-<h1 class="is-size-3">Show Site</h1>
+<div class="columns">
+  <div class="column is-one-quarter">
+    <div class="box" style="border-top: 5px solid <%= if @site.is_active == true, do: "#23d160", else: "#f5f5f5" %>">
+      <div class="media">
+        <div class="media-content">
+          <div class="content">
+            <p>
+              <strong><%= @site.name %></strong>
+              <br>
+              <small><%= @site.url %></small>
+              <br>
+              <small>Checking per <%= @site.interval %>ms</small>
+            </p>
+          </div>
+          <nav class="level is-mobile">
+            <div class="level-left">
+              <%= link(to: Routes.site_path(@conn, :edit, @site), class: "level-item button is-small is-info") do %>
+                <span class="icon is-small">
+                  <i class="fas fa-edit" aria-hidden="true"></i>
+                </span>
+                &nbsp;&nbsp;Edit this site
+              <% end %>
 
-<ul>
+              <%= link(to: Routes.site_path(@conn, :delete, @site), method: :delete, class: "level-item button is-small is-danger", data: [confirm: "Really?"]) do %>
+                <span class="icon is-small">
+                  <i class="fas fa-trash" aria-hidden="true"></i>
+                </span>
+                &nbsp;&nbsp;Delete this site
+              <% end %>
+            </div>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <li>
-    <strong>Name:</strong>
-    <%= @site.name %>
-  </li>
+  <div class="column">
+    <%= if length(@site.statuses) > 0 do %>
+      <div class="box" style="border-top: 5px solid <%= if Map.get(hd(@site.statuses), :status_code) in 100..400, do: "#23d160", else: "#f5f5f5" %>">
+        <div class="media">
+          <div class="media-content">
+            <div class="content">
+              <strong>The last status</strong>
+              <br>
+              <%= @site.name %> is currently <%= Map.get(hd(@site.statuses), :status_text, "OK!") %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
 
-  <li>
-    <strong>Url:</strong>
-    <%= @site.url %>
-  </li>
-
-  <li>
-    <strong>Is active:</strong>
-    <%= @site.is_active %>
-  </li>
-
-  <li>
-    <strong>Verified at:</strong>
-    <%= @site.verified_at %>
-  </li>
-
-</ul>
-
-<span><%= link "Edit", to: Routes.site_path(@conn, :edit, @site) %></span>
-<span><%= link "Back", to: Routes.site_path(@conn, :index) %></span>
+    <div class="box">
+      <div class="media">
+        <div class="media-content">
+          <div class="content">
+            <strong>Timelog</strong>
+            <hr>
+            <table class="table is-fullwidth is-hoverable">
+              <thead>
+                <tr>
+                  <th><span class="tooltip" data-tooltip="Ping time">Time</span></th>
+                  <th><span class="tooltip" data-tooltip="Status code">Code</span></th>
+                  <th><span class="tooltip" data-tooltip="Status text">Text</span></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <%= for status <- @site.statuses do %>
+                  <tr class="has-text-<%= if status.status_code in 100..400, do: "success", else: "danger" %>">
+                    <td>
+                      <%= status.inserted_at %>
+                    </td>
+                    <td>
+                      <%= status.status_code %>
+                    </td>
+                    <td>
+                      <%= status.status_text %>
+                    </td>
+                    <td>
+                      <%= link(to: Routes.site_status_path(@conn, :delete, @site, status), method: :delete, class: "level-item button is-small is-danger", data: [confirm: "Really?"]) do %>
+                        <span class="icon is-small">
+                          <i class="fas fa-trash" aria-hidden="true"></i>
+                        </span>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

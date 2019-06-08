@@ -1,4 +1,6 @@
 defmodule UprobotWeb.Router do
+  @moduledoc false
+
   use UprobotWeb, :router
 
   pipeline :browser do
@@ -17,8 +19,10 @@ defmodule UprobotWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
-    resources "/sites", SiteController
-    resources "/dashboard", DashboardController, only: [:index, :show]
+
+    resources "/sites", SiteController do
+      resources "/statuses", StatusController, only: [:delete]
+    end
   end
 
   # Other scopes may use custom stacks.

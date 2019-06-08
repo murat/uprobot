@@ -18,7 +18,12 @@ defmodule Uprobot.Monit do
 
   """
   def list_sites do
-    Repo.all(Site)
+    status_query = from(s in Status, order_by: [desc: s.inserted_at], limit: 1)
+
+    sites_query = from(s in Site, preload: [statuses: ^status_query])
+
+    sites_query
+    |> Repo.all()
   end
 
   @doc """
@@ -35,7 +40,15 @@ defmodule Uprobot.Monit do
       ** (Ecto.NoResultsError)
 
   """
-  def get_site!(id), do: Repo.get!(Site, id)
+  def get_site!(id, status_limit \\ 1)
+
+  def get_site!(id, status_limit) do
+    status_query = from(s in Status, order_by: [desc: s.inserted_at], limit: ^status_limit)
+    site_query = from(s in Site, where: s.id == ^id, preload: [statuses: ^status_query])
+
+    site_query
+    |> Repo.one!()
+  end
 
   def get_site_with_statuses!(id) do
     stats_query =

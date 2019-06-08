@@ -9,6 +9,8 @@ defmodule Uprobot.Workers.SiteWorker do
   alias Uprobot.Repo
   alias Uprobot.Monit.{Site, Status}
 
+  @interval 10_000
+
   @statuses %{
     "100" => "Continue",
     "101" => "Switching Protocols",
@@ -66,15 +68,14 @@ defmodule Uprobot.Workers.SiteWorker do
     "524" => "A timeout occurred"
   }
 
-  @spec start_link(any()) :: :ignore | {:error, any()} | {:ok, pid()}
-  def start_link(_), do: GenServer.start_link(__MODULE__, [])
+  def start_link(_), do: GenServer.start_link(__MODULE__, %{})
 
   def init(state) do
     schedule()
     {:ok, state}
   end
 
-  def schedule, do: Process.send_after(self(), :perform, 5_000)
+  def schedule, do: Process.send_after(self(), :perform, @interval)
 
   def handle_info(:perform, state) do
     perform()
@@ -82,18 +83,21 @@ defmodule Uprobot.Workers.SiteWorker do
   end
 
   defp perform do
-    Repo.all(from s in Site, where: is_nil(s.verified_at) == false)
-    |> Enum.map(&Task.async(fn -> monit(&1) end))
+    active_sites =
+      Repo.all(from s in Site, where: s.is_active == true and is_nil(s.verified_at) == false)
+
+    active_sites
+    |> Enum.map(&Task.async(fn -> ping(&1) end))
     |> Enum.map(&Task.await/1)
 
     schedule()
   end
 
-  defp monit(site) do
+  defp ping(site) do
     case HTTPoison.get(site.url) do
       {:ok, %HTTPoison.Response{status_code: status}} ->
         status_code =
-          if 100 < status && status < 599 do
+          if status in 100..599 do
             status
           else
             String.to_integer(status)
@@ -107,11 +111,15 @@ defmodule Uprobot.Workers.SiteWorker do
           status_text: status_text
         })
 
+        Logger.info("#{site.name}'s status was #{status_text} at #{NaiveDateTime.utc_now()}")
+
         treshold = NaiveDateTime.add(NaiveDateTime.utc_now(), -172_000)
 
         Repo.delete_all(
           from(s in Status, where: s.site_id == ^site.id and s.inserted_at < ^treshold)
         )
+
+        Logger.info("Old pings deleted for #{site.name}")
 
       {:error, error} ->
         Repo.insert!(%Status{

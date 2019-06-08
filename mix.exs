@@ -43,7 +43,10 @@ defmodule Uprobot.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:httpoison, "~> 1.4"}
+      {:httpoison, "~> 1.4"},
+
+      # dev
+      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false}
     ]
   end
 
@@ -57,6 +60,7 @@ defmodule Uprobot.MixProject do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
+      check: ["credo --strict", "format"],
       test: ["ecto.create --quiet", "ecto.migrate", "test"]
     ]
   end

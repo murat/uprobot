@@ -1,5 +1,5 @@
 /* This file is for your main application css. */
 
 @import "https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css";
-
+@import "./bulma-extensions.css";
 @import "./phoenix.css";

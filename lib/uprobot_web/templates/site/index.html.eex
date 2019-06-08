@@ -1,12 +1,15 @@
-<h1 class="is-size-3">Listing Sites</h1>
+<h1 class="is-size-3">
+  Sites
+  <span class="is-pulled-right"><%= link "New Site", to: Routes.site_path(@conn, :new), class: "button is-primary" %></span>
+</h1>
 
-<table class="table is-fullwidth is-striped">
+<table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
   <thead>
     <tr>
       <th>Name</th>
-      <th>Is active</th>
-      <th>Verified at</th>
-
+      <th style="text-align: center">Is active?</th>
+      <th style="text-align: center">Interval</th>
+      <th style="text-align: center">Status</th>
       <th></th>
     </tr>
   </thead>
@@ -14,30 +17,52 @@
     <%= for site <- @sites do %>
       <tr>
         <td>
-          <a href='<%= Routes.dashboard_path(@conn, :show, site) %>'>
+          <a href='<%= Routes.site_path(@conn, :show, site) %>'>
             <%= site.name %>
           </a>
 
-          <a href='<%= site.url %>' target="_blank">
+          <br>
+
+          <a href='<%= site.url %>' target="_blank" style="color: #333">
             <small>
-              - <%= site.url %>
+              <%= site.url %>
             </small>
           </a>
         </td>
-        <td>
+        <td style="vertical-align: middle; text-align: center">
           <%= if site.is_active do %>
-            <span class="icon has-text-success">
+            <span class="icon has-text-success tooltip" data-tooltip="Workers enabled!">
               <i class="fas fa-check-square"></i>
             </span>
-          <%= else %>
-            <span class="icon has-text-danger">
+          <% else %>
+            <span class="icon has-text-danger tooltip" data-tooltip="Workers disabled!">
               <i class="fas fa-ban"></i>
             </span>
           <% end %>
         </td>
-        <td><%= site.verified_at %></td>
+        <td style="vertical-align: middle; text-align: center">
+          <span class="tooltip" data-tooltip="milliseconds"><%= site.interval %></span>
+        </td>
+        <td style="vertical-align: middle; text-align: center">
+          <%= if length(site.statuses) > 0 do %>
+            <% status = hd(site.statuses) %>
+            <%= if Map.get(status, :status_code) in 100..300 do %>
+              <span class="icon has-text-success tooltip" data-tooltip="<%= Map.get(status, :status_text) %>">
+                <i class="fas fa-thumbs-up"></i>
+              </span>
+            <% else %>
+              <span class="icon has-text-danger tooltip" data-tooltip="<%= Map.get(status, :status_text) %>">
+                <i class="fas fa-thumbs-down"></i>
+              </span>
+            <% end %>
+          <% else %>
+            <span class="icon has-text-info tooltip" data-tooltip="Not known!">
+              <i class="fa fa-question"></i>
+            </span>
+          <% end %>
+        </td>
 
-        <td>
+        <td style="vertical-align: middle; text-align: right">
           <div class="is-pulled-right">
             <%= link to: Routes.site_path(@conn, :edit, site), class: "button is-small" do %>
               <span class="icon is-small">
@@ -55,5 +80,3 @@
     <% end %>
   </tbody>
 </table>
-
-<span><%= link "New Site", to: Routes.site_path(@conn, :new), class: "button is-primary" %></span>
