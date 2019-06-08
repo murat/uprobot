@@ -9,7 +9,9 @@ Uprobot is a ping bot for given URLs. I guess you may want to use a health check
 
 ## Screenshots
 
-// @todo
+![Site index](./assets/static/images/site-index.png)
+![Site form](./assets/static/images/site-form.png)
+![Site dashboard](./assets/static/images/site-dashboard.png)
 
 ## Installation
 
