@@ -1,5 +1,18 @@
 # Uprobot
 
+Uprobot is a ping bot for given URLs. I guess you may want to use a health check service like this for your deployments.
+
+## Thanks
+
+- I used [bulma](https://bulma.io/) as CSS framework, so thanks a lot all Bulma contributors.
+- I used [logoly.pro](https://logoly.pro/#/) for create Uprobot's logo, so thanks a lot [HuanCheng Bai](https://github.com/bestony)
+
+## Screenshots
+
+// @todo
+
+## Installation
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
@@ -11,10 +24,9 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
 
-## Learn more
+## TODO
 
-  * Official website: http://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+- [ ] Use different intervals in GenServer for each site,
+- [ ] Visualize downtimes with reasons and response times,
+- [ ] Dockerize and deploy
+- [ ] Think about good features
