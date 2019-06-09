@@ -16,3 +16,5 @@ config :uprobot, Uprobot.Repo,
   database: "uprobot_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :bcrypt_elixir, :log_rounds, 4
