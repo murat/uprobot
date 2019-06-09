@@ -94,7 +94,14 @@ defmodule Uprobot.Workers.SiteWorker do
   end
 
   defp ping(site) do
-    case HTTPoison.get(site.url) do
+    case apply(
+           HTTPoison,
+           if(site.method in ["get", "head", "options"],
+             do: String.to_atom(site.method),
+             else: :get
+           ),
+           [site.url]
+         ) do
       {:ok, %HTTPoison.Response{status_code: status}} ->
         status_code =
           if status in 100..599 do

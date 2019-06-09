@@ -18,11 +18,12 @@ defmodule Uprobot.Monit do
 
   """
   def list_sites do
-    status_query = from(s in Status, order_by: [desc: s.inserted_at], limit: 1)
+    # `, limit: 1)`
+    status_query = from(st in Status, order_by: [desc: :inserted_at])
+    # look for why is limit causing lost records problem?
+    site_query = from(s in Site, preload: [statuses: ^status_query])
 
-    sites_query = from(s in Site, preload: [statuses: ^status_query])
-
-    sites_query
+    site_query
     |> Repo.all()
   end
 
@@ -43,7 +44,7 @@ defmodule Uprobot.Monit do
   def get_site!(id, status_limit \\ 1)
 
   def get_site!(id, status_limit) do
-    status_query = from(s in Status, order_by: [desc: s.inserted_at], limit: ^status_limit)
+    status_query = from(st in Status, order_by: [desc: :inserted_at], limit: ^status_limit)
     site_query = from(s in Site, where: s.id == ^id, preload: [statuses: ^status_query])
 
     site_query

@@ -44,6 +44,7 @@
           <span class="tooltip" data-tooltip="milliseconds"><%= site.interval %></span>
         </td>
         <td style="vertical-align: middle; text-align: center">
+          <%= length site.statuses %>
           <%= if length(site.statuses) > 0 do %>
             <% status = hd(site.statuses) %>
             <%= if Map.get(status, :status_code) in 100..300 do %>
